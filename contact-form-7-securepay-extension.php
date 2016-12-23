@@ -32,8 +32,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  **/
 require_once (dirname(__FILE__) . '/contact-form-7-securepay-extension.php');
 
-register_activation_hook (__FILE__, 'paypal_submit_activation_check');
-function paypal_submit_activation_check()
+register_activation_hook (__FILE__, 'securepay_submit_activation_check');
+function securepay_submit_activation_check()
 {
     if ( !in_array( 'contact-form-7/wp-contact-form-7.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
         wp_die( __( '<b>Warning</b> : Install/Activate Contact Form 7 to activate "Contact Form 7 - PayPal Extension" plugin', 'contact-form-7' ) );
@@ -43,8 +43,8 @@ function paypal_submit_activation_check()
 /** 
   * Add PRO Version link in admin 
   */ 
-add_filter('plugin_row_meta',  'zwt_register_plugins_link', 10, 2);
-function zwt_register_plugins_link ($links, $file) {
+add_filter('plugin_row_meta',  'miwt_register_plugins_link', 10, 2);
+function miwt_register_plugins_link ($links, $file) {
    $base = plugin_basename(__FILE__);
    if ($file == $base) {
        $links[] = '<a href="https://opensource.zealousweb.com/contact-form-7-paypal-extension-pro/">' . __('PRO Version') . '</a>';
@@ -61,11 +61,11 @@ function zwt_register_plugins_link ($links, $file) {
 
 /* Shortcode handler */
 
-add_action('init', 'contact_form_7_paypal_submit', 11);
+add_action('init', 'contact_form_7_securepay_submit', 11);
 
-function contact_form_7_paypal_submit() {	
+function contact_form_7_securepay_submit() {	
 	if(function_exists('wpcf7_add_shortcode')) {
-		wpcf7_add_shortcode( 'paypalsubmit', 'wpcf7_paypal_submit_shortcode_handler', false );		
+		wpcf7_add_shortcode( 'paypalsubmit', 'wpcf7_securepay_submit_shortcode_handler', false );		
 	} else {
 		 return; 		
 	}
@@ -75,8 +75,8 @@ function contact_form_7_paypal_submit() {
   * Generate paypal redirection URL using parameters entered in tag 
   */
 
-add_action('wp_head','wpcf7_paypal_location');
-function wpcf7_paypal_location(){	?>
+add_action('wp_head','wpcf7_securepay_location');
+function wpcf7_securepay_location(){	?>
 	<script>	
 		var paypal_location = "";
 		var paypal_url="";			
@@ -163,7 +163,7 @@ function wpcf7_paypal_location(){	?>
   * Regenerate shortcode into PayPal submit button
   */
 
-function wpcf7_paypal_submit_shortcode_handler( $tag ) {		
+function wpcf7_securepay_submit_shortcode_handler( $tag ) {		
 	$tag = new WPCF7_Shortcode( $tag );	
 	$class = wpcf7_form_controls_class( $tag->type );	
 	$atts = array();	
@@ -213,19 +213,19 @@ function wpcf7_paypal_submit_shortcode_handler( $tag ) {
 
 /* Tag generator */
 
-add_action( 'admin_init', 'wpcf7_add_tag_generator_paypal_submit', 55 );
+add_action( 'admin_init', 'wpcf7_add_tag_generator_securepay_submit', 55 );
 
-function wpcf7_add_tag_generator_paypal_submit() {	
+function wpcf7_add_tag_generator_securepay_submit() {	
 	if(class_exists('WPCF7_TagGenerator')){
 		$tag_generator = WPCF7_TagGenerator::get_instance();
-		$tag_generator->add( 'paypal-submit', __( 'PayPal Submit button', 'contact-form-7' ),
-		'wpcf7_tg_pane_paypal_submit', array( 'nameless' => 1 ) );
+		$tag_generator->add( 'securepay-submit', __( 'Secure Pay', 'contact-form-7' ),
+		'wpcf7_tg_pane_securepay_submit', array( 'nameless' => 1 ) );
 	}	
 }
 
 /** Parameters field for generating tag at backend **/
 
-function wpcf7_tg_pane_paypal_submit( $contact_form, $args = '' ) {
+function wpcf7_tg_pane_securepay_submit( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 
 	$description = __( "Generate a form-tag for a paypal submit button which redirects you to PayPal website for making your payments after submitting the form.", 'contact-form-7' );
