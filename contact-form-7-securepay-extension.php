@@ -40,21 +40,6 @@ function securepay_submit_activation_check()
     }
 }
 
-/** 
-  * Add PRO Version link in admin 
-  */ 
-add_filter('plugin_row_meta',  'miwt_register_plugins_link', 10, 2);
-function miwt_register_plugins_link ($links, $file) {
-   $base = plugin_basename(__FILE__);
-   if ($file == $base) {
-       $links[] = '<a href="https://opensource.zealousweb.com/contact-form-7-paypal-extension-pro/">' . __('PRO Version') . '</a>';
-       $links[] = '<a href="https://opensource.zealousweb.com/shop">' . __('More Plugins by ZealousWeb') . '</a>';
-       $links[] = '<a href="http://www.zealousweb.net/payment/">' . __('Donate') . '</a>';
-   }
-   return $links;
-}
-
-
 /**
 ** A base module for [paypalsubmit] - A submit button that will redirect to PayPal after form submit.
 **/
@@ -170,7 +155,6 @@ function wpcf7_securepay_submit_shortcode_handler( $tag ) {
 	$atts['class'] = $tag->get_class_option( $class );
 	$atts['id'] = $tag->get_id_option();
 	$atts['tabindex'] = $tag->get_option( 'tabindex', 'int', true );
-	$businessemail = $tag->get_option('email');
 	$currencycode = $tag->get_option('currency');
 	$successURL = $tag->get_option('return_url');
 	$cancelURL = $tag->get_option('cancel_url');
@@ -178,6 +162,12 @@ function wpcf7_securepay_submit_shortcode_handler( $tag ) {
     $itemqty = $tag->get_option('quantity');
     $itemamount = $tag->get_option('itemamount');
     $itemname = $tag->get_option('itemname');
+    //
+    $EPS_MERCHANT = $tag->get_option('EPS_MERCHANT');
+    $EPS_TXNTYPE = $tag->get_option('EPS_TXNTYPE');
+    $actionUrl = $tag->get_option('action_url');
+
+
 	if(!empty($businessemail[0]))
 	{
 		$querystring = array(
@@ -228,9 +218,9 @@ function wpcf7_add_tag_generator_securepay_submit() {
 function wpcf7_tg_pane_securepay_submit( $contact_form, $args = '' ) {
 	$args = wp_parse_args( $args, array() );
 
-	$description = __( "Generate a form-tag for a paypal submit button which redirects you to PayPal website for making your payments after submitting the form.", 'contact-form-7' );
+	$description = __( "Generate a form-tag for Secure Pay Submit Button", 'contact-form-7' );
 
-	$desc_link = wpcf7_link( '',__( 'PayPal Submit Button', 'contact-form-7' ) );
+	$desc_link = wpcf7_link( '',__( 'SecurePay Submit Button', 'contact-form-7' ) );
 
 	$currency = array('AUD'=>'Australian Dollar','BRL'=>'Brazilian Real','CAD'=>'Canadian Dollar','CZK'=>'Czech Koruna','DKK'=>'Danish Krone','EUR'=>'Euro','HKD'=>'Hong Kong Dollar','HUF'=>'Hungarian Forint','ILS'=>'Israeli New Sheqel','JPY'=>'Japanese Yen','MYR'=>'Malaysian Ringgit','MXN'=>'Mexican Peso','NOK'=>'Norwegian Krone','NZD'=>'New Zealand Dollar','PHP'=>'Philippine Peso','PLN'=>'Polish Zloty','GBP'=>'Pound Sterling','RUB'=>'Russian Ruble','SGD'=>'Singapore Dollar', 'SEK'=>'Swedish Krona','CHF'=>'Swiss Franc','TWD'=>'Taiwan New Dollar','THB'=>'Thai Baht','TRY'=>'Turkish Lira','USD'=>'U.S. Dollar');
 ?>
@@ -240,24 +230,24 @@ function wpcf7_tg_pane_securepay_submit( $contact_form, $args = '' ) {
 <table class="form-table">
 <tbody>
 <tr><td colspan="2"><a href="https://opensource.zealousweb.com/shop/" target="_blank">
-	<img src="<?php echo bloginfo('wpurl').'/wp-content/plugins/contact-form-7-paypal-extension/assets/cf7pn.jpg';?>" width="540">
+	<img src="<?php //echo bloginfo('wpurl').'/wp-content/plugins/contact-form-7-paypal-extension/assets/cf7pn.jpg';?>" width="540">
 </a></td></tr>
 <tr>
-<td colspan="2"><b>NOTE: If required fields are missing, PayPal Submit button works as simple Submit button.</b></td>
+<td colspan="2"><b>NOTE: Please fill all required fields.</b></td>
 </tr>
 <tr>
-<td><code>id</code> <?php echo '<font style="font-size:10px"> (optional)</font>';?><br />
-<input type="text" name="id" class="idvalue oneline option" /></td>
+	<td><code>Merchant ID</code> <?php echo '<font style="font-size:10px"> (Required)</font>';?><br />
+	<input type="text" name="EPS_MERCHANT" placeholder="ABC0010" class="idvalue oneline option" /></td>
 
-<td><code>class</code> <?php echo '<font style="font-size:10px"> (optional)</font>'; ?><br />
-<input type="text" name="class" class="classvalue oneline option" /></td>
+	<td><code>Transaction Type</code> <?php echo '<font style="font-size:10px"> (Required)</font>'; ?><br />
+	<input type="text" name="EPS_TXNTYPE" class="classvalue oneline option" /></td>
 </tr>
 
 <tr>
-<td><?php echo esc_html( __( 'Label', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (optional)</font>'; ?><br />
-<input type="text" name="values" class="oneline" /></td>
-<td><?php echo esc_html( __( 'PayPal Business E-Mail', 'contact-form-7' ) );echo '<font style="font-size:10px"> (required)</font>';?><br />
-<input type="text" name="email" class="oneline option" /></td>
+	<td><?php echo esc_html( __( 'Transaction Password', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (required)</font>'; ?><br />
+	<input type="text" name="TRANSACTION_PASSWORD" class="oneline" /></td>
+	<td><?php echo esc_html( __( 'Action Url', 'contact-form-7' ) );echo '<font style="font-size:10px"> (required)</font>';?><br />
+	<input type="text" name="action_url" placeholder="https://api.securepay.com.au/test/directpost/authorise" class="oneline option" /></td>
 </tr>
 <tr>
 <td><?php echo esc_html( __( 'Select Currency', 'contact-form-7' ) ); echo ' (Default "USD")';?><br />
@@ -268,39 +258,39 @@ function wpcf7_tg_pane_securepay_submit( $contact_form, $args = '' ) {
 	</select>
 	<input type="hidden" value="" name="currency" id="currency" class="oneline option">
 </td>
-<td><br><input type="checkbox" name="sandbox" class="option">Use PayPal Sandbox</td>
 </tr>
 <tr>	
-	<td colspan="2"><hr><font color="blue"><i>Enter Contact Form 7 Field's ID for these 3 PayPal fields,<i></font></td>
+	<td colspan="2"><hr><font color="blue"><i>Enter Contact Form 7 Field's ID for these 4 Secure Pay fields,<i></font></td>
 </tr>
 <tr>
 	<td colspan="2">
 	<table>
-		<tr><td><?php echo esc_html( __( 'Itemamount Field ID', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (required)</font>'; ?></td>
-			<td><input type="text" name="itemamount" class="oneline option"/></td>
+		<tr><td><?php echo esc_html( __( 'Canrd No.', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (required)</font>'; ?></td>
+			<td><input type="text" name="Card Number" class="oneline option"/></td>
 		</tr>
-		<tr><td><?php echo esc_html( __( 'Itemname Field ID', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (optional)</font>';?></td>
-			<td><input type="text" name="itemname" class="oneline option" /></td>
+		<tr><td><?php echo esc_html( __( 'Expiry Month', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (required)</font>';?></td>
+			<td><input type="text" name="EPS_EXPIRYMONTH" class="oneline option" /></td>
 		</tr>
-		<tr><td><?php echo esc_html( __( 'Quantity Field ID', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (optional)</font>'; ?></td>
-			<td><input type="text" name="quantity" class="oneline option" /></td>
+		<tr><td><?php echo esc_html( __( 'Expiry Year', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (required)</font>'; ?></td>
+			<td><input type="text" name="EPS_EXPIRYYEAR" class="oneline option" /></td>
+		</tr>
+		<tr><td><?php echo esc_html( __( 'CCV', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (required)</font>'; ?></td>
+			<td><input type="text" name="EPS_CCV" class="oneline option" /></td>
 		</tr>
 	</table><hr>
 </td>
 </tr>
 <tr>
-<td><?php echo esc_html( __( 'Success Return URL', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (optional)</font>';?><br />
-	<input type="text" name="return_url" class="oneline option" /></td>
-<td><?php echo esc_html( __( 'Cancel Return URL', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (optional)</font>';?><br />
-	<input type="text" name="cancel_url" class="oneline option" /></td>
+
+<td><?php echo esc_html( __( 'Result  URL', 'contact-form-7' ) ); echo '<font style="font-size:10px"> (optional)</font>';?><br />
+	<input type="text" name="result_url" class="oneline option" /></td>
 </tr>
 </tbody>
 </table>
 </fieldset>
 </div>
 <div class="insert-box">
-	<input type="text" name="paypalsubmit" class="tag code" readonly="readonly" onfocus="this.select()" />
-
+	<input type="text" name="securepaysubmit" class="tag code" readonly="readonly" onfocus="this.select()" />
 	<div class="submitbox">
 	<input type="button" class="button button-primary insert-tag" value="<?php echo esc_attr( __( 'Insert Tag', 'contact-form-7' ) ); ?>" />
 	</div>
